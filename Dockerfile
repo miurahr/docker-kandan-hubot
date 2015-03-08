@@ -59,14 +59,14 @@ RUN RAILS_ENV=production bundle exec rake db:create db:migrate kandan:bootstrap 
 
 # install Hubot
 WORKDIR /home/hubot
-RUN wget https://github.com/github/hubot/archive/v2.4.7.zip && unzip v2.4.7.zip
+RUN wget https://github.com/github/hubot/archive/v2.6.0.zip && unzip v2.6.0.zip && mv hubot-2.6.0 hubot-root
 
-WORKDIR /home/hubot/hubot-2.4.7
-ADD hubot/package.json /home/hubot/hubot-2.4.7/hubot/package.json
-ADD hubot/hubot-scripts.json /home/hubot/hubot-2.4.7/hubot/hubot-scripts.json
-RUN mkdir -p /home/hubot/hubot-2.4.7/hubot/bin && sudo npm install -g mime@1.2.4 qs@0.4.2 && npm install && make package
+WORKDIR /home/hubot/hubot-root
+ADD hubot/package.json /home/hubot/hubot-root/hubot/package.json
+ADD hubot/hubot-scripts.json /home/hubot/hubot-root/hubot/hubot-scripts.json
+RUN mkdir -p /home/hubot/hubot-root/hubot/bin && sudo npm install -g mime@1.2.4 qs@0.4.2 && npm install && make package
 
-WORKDIR /home/hubot/hubot-2.4.7/hubot
+WORKDIR /home/hubot/hubot-root/hubot
 RUN git clone https://github.com/miurahr/hubot-kandan.git node_modules/hubot-kandan && \
     npm install faye && npm install ntwitter
 
