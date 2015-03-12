@@ -46,20 +46,14 @@ RUN git clone https://github.com/miurahr/kandan.git && \
     echo 'gem: --no-rdoc --no-ri' >> /home/hubot/.gemrc
 WORKDIR /home/hubot/kandan
 RUN git checkout i18n && \
-    sudo gem install execjs && \
-    sudo sed -ri "s/gem 'pg'/gem 'sqlite3'/g" /home/hubot/kandan/Gemfile && \
-    bundle install --without development test
+    sudo gem install execjs && bundle install
 ADD kandan/database.yml /home/hubot/kandan/config/database.yml
-RUN RAILS_ENV=production bundle exec rake db:create db:migrate kandan:bootstrap && \
-    sed -ri 's/config.serve_static_assets = false/config.serve_static_assets = true/g' \
+RUN sed -ri 's/config.serve_static_assets = false/config.serve_static_assets = true/g' \
     /home/hubot/kandan/config/environments/production.rb && \
-    RAILS_ENV=production bundle exec rake assets:precompile && \
-    RAILS_ENV=production bundle exec rake kandan:boot_hubot && \
-    RAILS_ENV=production bundle exec rake kandan:hubot_access_key | awk '{print $6}' > hubot-key
 
 # install Hubot
 WORKDIR /home/hubot
-RUN wget https://github.com/github/hubot/archive/v2.6.0.zip && unzip v2.6.0.zip && mv hubot-2.6.0 hubot-root
+RUN wget https://github.com/github/hubot/archive/v2.6.0.zip && unzip v2.6.0.zip && rm v2.6.0.zip && mv hubot-2.6.0 hubot-root
 
 WORKDIR /home/hubot/hubot-root
 RUN mkdir -p hubot/bin 
@@ -73,17 +67,17 @@ RUN git clone https://github.com/miurahr/hubot-kandan.git node_modules/hubot-kan
 
 USER root
 ADD hubot/hubot.sh /etc/profile.d/hubot.sh
-RUN awk '{print "export HUBOT_KANDAN_TOKEN="$0}' /home/hubot/kandan/hubot-key >> /etc/profile.d/hubot.sh 
 
 # add supervisor config file 
 RUN mkdir -p /var/log/supervisor /etc/supervisor/conf.d
 ADD sshd.conf /etc/supervisor/conf.d/sshd.conf
 ADD kandan/kandan.conf /etc/supervisor/conf.d/kandan.conf
 ADD hubot/hubot.conf /etc/supervisor/conf.d/hubot.conf
-RUN awk '{print " HUBOT_KANDAN_TOKEN="$0}' /home/hubot/kandan/hubot-key >> /etc/supervisor/conf.d/hubot.conf 
+ADD runner.sh /usr/bin/runner.sh
+RUN chmod +x /usr/bin/runner.sh
 
 # expose ports
 EXPOSE 22 3000
 
 # define default command
-CMD supervisord -n
+CMD /usr/bin/runner.sh

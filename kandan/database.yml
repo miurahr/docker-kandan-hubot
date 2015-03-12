@@ -1,17 +1,11 @@
-# Postgres settings
-# #################
-# development:
-#   adapter: postgresql
-#   host: localhost
-#   database: kandan_development
-#   pool: 5
-#   timeout: 5000
-
 production:
-  adapter: sqlite3
-  database: db/development.sqlite3
+  adapter: postgresql
+  database: kandan
+  host: localhost
   pool: 5
   timeout: 5000
+  username: kandan
+  password: something
 
 development:
   adapter: sqlite3
