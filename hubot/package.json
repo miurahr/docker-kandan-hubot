@@ -18,6 +18,10 @@
     "hubot": ">=2.6.0",
     "hubot-scripts": ">= 2.4.1",
     "hubot-kandan": ">=1.1.0",
+    "hubot-lingr": ">=0.1.1",
+    "hubot-trello": ">=0.1.0",
+    "hubot-google-hangouts": ">=0.7.1",
+    "hubot-business-cat": ">=1.1.16",
     "optparse": "1.0.3"
   },
 

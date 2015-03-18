@@ -67,8 +67,12 @@ ADD hubot/package.json /home/hubot/hubot-root/hubot/package.json
 ADD hubot/hubot-scripts.json /home/hubot/hubot-root/hubot/hubot-scripts.json
 RUN sudo npm install -g mime@1.2.4 qs@0.4.2 && sudo npm install && sudo make package
 
+# checkout hubot-kandan, hubot-lingr, hubot-redmine
 WORKDIR /home/hubot/hubot-root/hubot
-RUN git clone https://github.com/miurahr/hubot-kandan.git node_modules/hubot-kandan && \
+RUN git clone https://github.com/miurahr/hubot-kandan.git       node_modules/hubot-kandan  && \
+    git clone https://github.com/robhurring/hubot-redmine.git   node_modules/hubot-redmine && \
+    git clone https://github.com/miyagawa/hubot-lingr.git       node_modules/hubot-lingr   && \
+    git clone https://github.com/hubot-scripts/hubot-trello.git node_modules/hubot-trello  && \
     npm install faye && npm install ntwitter
 
 USER root
