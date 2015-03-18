@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ -e /run/docker-hubot.pid ]; then
-DPID=`cat /run/docker-hubot.pid`
+if [ -e /run/docker-kandan-hubot.pid ]; then
+DPID=`cat /run/docker-kandan-hubot.pid`
 else
 DPID=`sudo docker ps -q -l`
 fi
