@@ -70,7 +70,7 @@ bundle install --without development,test
 
 sed -ri 's/config.serve_static_assets = false/config.serve_static_assets = true/g' ${INSTALL_DIR}/kandan/config/environments/production.rb
 
-chown -R kandan:kandan ${INSTALL_DIR}/kandan
+chown -R ${RUN_USER}:${RUN_USER} ${INSTALL_DIR}/kandan
 
 
 # install yeoman and hubot generator
@@ -104,6 +104,8 @@ sudo -u ${RUN_USER} -E env HOME=${INSTALL_DIR} yo hubot --defaults
 for a in ${HUBOT_ADAPTERS}; do
   sudo -u ${RUN_USER} -E env HOME=${INSTALL_DIR} npm install hubot-$a --save
 done
+
+# install useful scripts
 
 # cleanup dev files
 apt-get -y remove \
