@@ -1,26 +1,38 @@
 docker-kandan-hubot
-===================
-Dockerfile to build image which is installed Kandan and hubot.  
-Here is a fork version of 
-blog: http://hidemium.hatenablog.com/entry/2014/11/03/022453
+=====================
+
+Run kandan and hubot on Docker.
+
+## Build docker image
+
+```
+$ git clone https://github.com/miurahr/docker-kandan-hubot.git
+$ cd docker-kandan-hubot
+$ docker-compose build .
+```
 
 ## Usage
 
+Provisionings are placed in docker-compose.yml.
+Please edit it before start.
+
+
 ```
-$ sudo docker pull miurahr/kandan-hubot
-$ sudo docker run -d -p 22 -p 3000:3000 miurahr/kandan-hubot
+$ cp docker-compose.yml.sample-postgresql-docker
+$ vi docker-compose.yml
+$ sudo mkdir /var/log/kandan-hubot
+$ docker-compose up -d
 ```
 
-## Contents
+## Debug
 
-The image contains:
+Examine log file in `/var/log/kandan-hubot/`
 
-- Kandan miurahr/kandan/i18n branch
-- hubot 2.6.0
-- hubot-kandan adapter 1.1.0
+Or log in to running image like;
 
-## References
+```
+$ docker ps -a
+$ docker exec -t -i dockerkandan_Kandanhubot_1 /bin/bash
+# cat /var/log/app/kandan.log
+```
 
-  * https://github.com/github/hubot
-  * https://github.com/kandanapp/kandan
-  * https://github.com/kandanapp/hubot-kandan
