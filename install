@@ -1,0 +1,117 @@
+#!/bin/bash
+set -e
+
+. /etc/profile.d/rbenv.sh
+BUNDLE=`which bundle`
+. /opt/build-config
+
+INSTALL_DIR=${INSTALL_DIR:-/home/app}
+RUN_USER=${RUN_USER:-app}
+LOG_DIR="/var/log/app"
+KANDAN_CONF=/etc/supervisor/conf.d/kandan.conf
+HUBOT_CONF=/etc/supervisor/conf.d/hubot.conf
+ADAPTERS=${ADAPTERS:-lingr,irc,kandan}
+
+# add user
+useradd -d ${INSTALL_DIR} -m ${RUN_USER}
+
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+apt-get -y install \
+  supervisor \
+  build-essential \
+  curl \
+  unzip \
+  git-core \
+  gcc \
+  g++ \
+  make
+
+# install dependency
+curl -sL https://deb.nodesource.com/setup | bash -
+apt-get -y install nodejs \
+  libpq5 sqlite3 libmysqlclient18 \
+  libcurl3 libcurl3-nss libpcre3 libxml2 libxslt1.1 \
+  libreadline5 libyaml-0-2\
+  libmysqlclient-dev libsqlite3-dev libpq-dev \
+  libcurl4-openssl-dev libpcre3-dev libxml2-dev libxslt-dev \
+  libreadline-gplv2-dev
+npm update -g npm
+# move supervisord.log file to ${LOG_DIR}
+sed 's|^logfile=.*|logfile='"${LOG_DIR}"'/supervisord.log ;|' -i /etc/supervisor/supervisord.conf
+
+# populate ${LOG_DIR}
+if [ ! -d ${LOG_DIR} ]; then
+  mkdir -p -m 755 ${LOG_DIR}
+fi
+
+# populate ${KANDAN_CONF}
+cat > ${KANDAN_CONF} <<__EOL__
+[program:kandan]
+command=${BUNDLE} exec thin start -e production
+autostart=true
+autorestart=false
+username=${RUN_USER}
+directory=${INSTALL_DIR}/kandan
+stdout_logfile=${LOG_DIR}/%(program_name)s.log
+stderr_logfile=${LOG_DIR}/%(program_name)s.log
+environment=RBENV_ROOT=${RBENV_ROOT}
+__EOL__
+
+# install
+cd ${INSTALL_DIR}
+git clone https://github.com/miurahr/kandan.git
+cd kandan
+git checkout i18n
+
+gem install execjs
+gem install mysql2 # force install for mysql
+bundle install --without development,test
+
+sed -ri 's/config.serve_static_assets = false/config.serve_static_assets = true/g' ${INSTALL_DIR}/kandan/config/environments/production.rb
+
+chown -R kandan:kandan ${INSTALL_DIR}/kandan
+
+
+# install yeoman and hubot generator
+npm install -g yo generator-hubot
+
+# move supervisord.log file to ${LOG_DIR}
+sed 's|^logfile=.*|logfile='"${LOG_DIR}"'/supervisord.log ;|' -i /etc/supervisor/supervisord.conf
+
+# populate ${LOG_DIR}
+if [ ! -d ${LOG_DIR} ]; then
+  mkdir -p -m 755 ${LOG_DIR}
+fi
+
+# populate ${HUBOT_CONF}
+cat > ${HUBOT_CONF} <<__EOL__
+[program:hubot]
+command=${INSTALL_DIR}/bin/hubot -a kandan
+autostart=true
+autorestart=false
+username=${RUN_USER}
+directory=${INSTALL_DIR}
+stdout_logfile=${LOG_DIR}/%(program_name)s.log
+stderr_logfile=${LOG_DIR}/%(program_name)s.log
+__EOL__
+
+# install hubot
+cd ${INSTALL_DIR}
+sudo -u ${RUN_USER} -E env HOME=${INSTALL_DIR} yo hubot --defaults
+
+# install known adapters
+for a in ${HUBOT_ADAPTERS}; do
+  sudo -u ${RUN_USER} -E env HOME=${INSTALL_DIR} npm install hubot-$a --save
+done
+
+# cleanup dev files
+apt-get -y remove \
+  libmysqlclient-dev libsqlite3-dev libpq-dev \
+  libcurl4-openssl-dev libpcre3-dev libxml2-dev libxslt-dev \
+  libreadline-gplv2-dev
+
+# clean apt caches, build dependency
+apt-get clean
+apt-get -y autoremove
+find /var/lib/apt/lists/ -type f -exec rm -f {} \;

@@ -1,0 +1,17 @@
+postgresql:
+  image: sameersbn/postgresql:9.4
+  environment:
+    - DB_PASS=hogefuga
+    - DB_USER=kandan
+kandan:
+  image: miurahr/kandan
+  environment:
+    - DB_USER=kandan
+    - DB_PASS=hogefuga
+    - DB_NAME=kandan_production
+  links:
+    - postgresql:postgresql
+  volumes:
+    - /var/log/kandan-hubot:/var/log/app
+  ports:
+    - 3000:3000
