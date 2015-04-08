@@ -7,6 +7,7 @@ BUNDLE=`which bundle`
 LOG_DIR=${LOG_DIR:-"/var/log/app"}
 INSTALL_DIR=${INSTALL_DIR:-"/home/app"}
 ADAPTER=kandan
+HUBOT_CONF=/etc/supervisor/conf.d/hubot.conf
 
 DB_HOST=${DB_HOST:-}
 DB_PORT=${DB_PORT:-}
@@ -118,22 +119,21 @@ __EOL1__
     ;;
 esac
 
-if [ ! -f ${INSTALL_DIR}/kandan/hubot-key ]; then
-  cd ${INSTALL_DIR}/kandan
-  sudo -u kandan ${BUNDLE} exec rake db:create db:migrate kandan:bootstrap RAILS_ENV=production
-  sudo -u kandan ${BUNDLE} exec rake assets:precompile RAILS_ENV=production
-  sudo -u kandan ${BUNDLE} exec rake kandan:boot_hubot RAILS_ENV=production
-  sudo -u kandan ${BUNDLE} exec rake kandan:hubot_access_key RAILS_ENV=production | grep -oP "(?<=Your hubot access key is )[^ ]*" > hubot-key
-fi
+cd ${INSTALL_DIR}/kandan
+sudo -u kandan -E -H ${BUNDLE} exec rake db:create db:migrate kandan:bootstrap RAILS_ENV=production
+sudo -u kandan -E -H ${BUNDLE} exec rake assets:precompile RAILS_ENV=production
+sudo -u kandan -E -H ${BUNDLE} exec rake kandan:boot_hubot RAILS_ENV=production
+sudo -u kandan -E -H ${BUNDLE} exec rake kandan:hubot_access_key RAILS_ENV=production | grep -oP "(?<=Your hubot access key is )[^ ]*" > hubot-key
 
 HUBOT_KANDAN_TOKEN=`cat ${INSTALL_DIR}/kandan/hubot-key`
-HUBOT_KANDAN_HOST=127.0.0.1
+HUBOT_KANDAN_HOST=localhost
 HUBOT_KANDAN_PORT=3000
 
-echo "environment=" >> /etc/supervisor/hubot.conf
-echo "  HUBOT_KANDAN_TOKEN=\"${HUBOT_KANDAN_TOKEN}\"," >> /etc/supervisor/hubot.conf
-echo "  HUBOT_KANDAN_PORT=${HUBOT_KANDAN_PORT}," >> /etc/supervisor/hubot.conf
-echo "  HUBOT_KANDAN_HOST=${HUBOT_KANDAN_HOST}" >> /etc/supervisor/hubot.conf
+echo "environment=" >> ${HUBOT_CONF}
+echo "  HUBOT_KANDAN_TOKEN=\"${HUBOT_KANDAN_TOKEN}\"," >> ${HUBOT_CONF}
+echo "  HUBOT_KANDAN_PORT=${HUBOT_KANDAN_PORT}," >> ${HUBOT_CONF}
+echo "  HUBOT_KANDAN_HOST=${HUBOT_KANDAN_HOST}," >> ${HUBOT_CONF}
+echo "  HUBOT_LOG_LEVEL=debug" >> ${HUBOT_CONF}
 
 appStart () {
   # update adapter

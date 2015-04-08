@@ -2,4 +2,3 @@
 
 INSTALL_DIR=/home/app
 RUN_USER=app
-ADAPTERS=lingr,irc,kandan,gitter2,typetalk,slack,jabber,yammer,xmpp,twitter,hipchat

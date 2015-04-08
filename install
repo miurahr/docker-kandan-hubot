@@ -3,6 +3,7 @@ set -e
 
 . /etc/profile.d/rbenv.sh
 BUNDLE=`which bundle`
+GEM=`which gem`
 . /opt/build-config
 
 INSTALL_DIR=${INSTALL_DIR:-/home/app}
@@ -10,7 +11,6 @@ RUN_USER=${RUN_USER:-app}
 LOG_DIR="/var/log/app"
 KANDAN_CONF=/etc/supervisor/conf.d/kandan.conf
 HUBOT_CONF=/etc/supervisor/conf.d/hubot.conf
-ADAPTERS=${ADAPTERS:-lingr,irc,kandan}
 
 # add user
 useradd -d ${INSTALL_DIR} -m ${RUN_USER}
@@ -58,54 +58,50 @@ stderr_logfile=${LOG_DIR}/%(program_name)s.log
 environment=RBENV_ROOT=${RBENV_ROOT}
 __EOL__
 
-# install
-cd ${INSTALL_DIR}
-git clone https://github.com/miurahr/kandan.git
-cd kandan
-git checkout i18n
-
-gem install execjs
-gem install mysql2 # force install for mysql
-bundle install --without development,test
-
-sed -ri 's/config.serve_static_assets = false/config.serve_static_assets = true/g' ${INSTALL_DIR}/kandan/config/environments/production.rb
-
-chown -R ${RUN_USER}:${RUN_USER} ${INSTALL_DIR}/kandan
-
-
-# install yeoman and hubot generator
-npm install -g yo generator-hubot
-
-# move supervisord.log file to ${LOG_DIR}
-sed 's|^logfile=.*|logfile='"${LOG_DIR}"'/supervisord.log ;|' -i /etc/supervisor/supervisord.conf
-
-# populate ${LOG_DIR}
-if [ ! -d ${LOG_DIR} ]; then
-  mkdir -p -m 755 ${LOG_DIR}
-fi
-
 # populate ${HUBOT_CONF}
 cat > ${HUBOT_CONF} <<__EOL__
 [program:hubot]
-command=${INSTALL_DIR}/bin/hubot -a kandan
+command=${INSTALL_DIR}/hubot/bin/hubot -a kandan
 autostart=true
 autorestart=false
 username=${RUN_USER}
-directory=${INSTALL_DIR}
+directory=${INSTALL_DIR}/hubot
 stdout_logfile=${LOG_DIR}/%(program_name)s.log
 stderr_logfile=${LOG_DIR}/%(program_name)s.log
 __EOL__
 
-# install hubot
+# install yeoman and hubot generator
+npm install -g yo generator-hubot
+
+# install
 cd ${INSTALL_DIR}
-sudo -u ${RUN_USER} -E env HOME=${INSTALL_DIR} yo hubot --defaults
+sudo -u ${RUN_USER} -E -H git clone https://github.com/miurahr/kandan.git
+cd kandan
+sudo -u ${RUN_USER} -E -H git checkout i18n
 
-# install known adapters
-for a in ${HUBOT_ADAPTERS}; do
-  sudo -u ${RUN_USER} -E env HOME=${INSTALL_DIR} npm install hubot-$a --save
-done
+${GEM} install execjs
+${GEM} install mysql2
 
-# install useful scripts
+# install gems into kandan/vendor/bundle
+sudo -u ${RUN_USER} -E -H ${BUNDLE} install --path vendor/bundle --without development,test
+
+sed -ri 's/config.serve_static_assets = false/config.serve_static_assets = true/g' ${INSTALL_DIR}/kandan/config/environments/production.rb
+
+chown -R ${RUN_USER}:${RUN_USER} ${INSTALL_DIR}
+
+# install hubot
+install -d -m 755 -o ${RUN_USER} -g ${RUN_USER} ${INSTALL_DIR}/hubot
+cd ${INSTALL_DIR}/hubot
+sudo -u ${RUN_USER} -E -H yo hubot --defaults
+
+# install kandan adapter and some
+sudo -u ${RUN_USER} -E -H git clone https://github.com/miurahr/hubot-kandan.git       node_modules/hubot-kandan
+sudo -u ${RUN_USER} -E -H git clone https://github.com/robhurring/hubot-redmine.git   node_modules/hubot-redmine
+sudo -u ${RUN_USER} -E -H git clone https://github.com/hubot-scripts/hubot-trello.git node_modules/hubot-trello
+sudo -u ${RUN_USER} -E -H npm install faye@1.0.1
+
+sed -ri 's/"hubot-redis-brain": "0.0.2",/"hubot-kandan": "*","hubot-redmine": "*","hubot-trello": "*",/g'  ${INSTALL_DIR}/hubot/package.json
+sudo -u ${RUN_USER} -E -H npm install
 
 # cleanup dev files
 apt-get -y remove \
