@@ -129,12 +129,11 @@ __EOL1__
       prog="mysqladmin -h ${DB_HOST} -P ${DB_PORT} -u ${DB_USER} ${DB_PASS:+-p$DB_PASS} status"
       ;;
     postgres)
-      prog=$(find /usr/lib/postgresql/ -name pg_isready)
-      prog="${prog} -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d ${DB_NAME} -t 1"
+      prog="pg_isready -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d ${DB_NAME} -t 1"
       ;;
   esac
 
-  timeout=90
+  timeout=60
   echo -n "Waiting for database server to accept connections"
   while ! ${prog} >/dev/null 2>&1
   do
@@ -152,10 +151,10 @@ __EOL1__
 
 bootApp () {
   cd ${INSTALL_DIR}/kandan
-  sudo -u kandan -E -H ${BUNDLE} exec rake db:create db:migrate kandan:bootstrap RAILS_ENV=production
-  sudo -u kandan -E -H ${BUNDLE} exec rake assets:precompile RAILS_ENV=production
-  sudo -u kandan -E -H ${BUNDLE} exec rake kandan:boot_hubot RAILS_ENV=production
-  sudo -u kandan -E -H ${BUNDLE} exec rake kandan:hubot_access_key RAILS_ENV=production | grep -oP "(?<=Your hubot access key is )[^ ]*" > hubot-key
+  sudo -u ${RUN_USER} -E -H ${BUNDLE} exec rake db:create db:migrate kandan:bootstrap RAILS_ENV=production
+  sudo -u ${RUN_USER} -E -H ${BUNDLE} exec rake assets:precompile RAILS_ENV=production
+  sudo -u ${RUN_USER} -E -H ${BUNDLE} exec rake kandan:boot_hubot RAILS_ENV=production
+  sudo -u ${RUN_USER} -E -H ${BUNDLE} exec rake kandan:hubot_access_key RAILS_ENV=production | grep -oP "(?<=Your hubot access key is )[^ ]*" > hubot-key
 
   HUBOT_KANDAN_TOKEN=`cat ${INSTALL_DIR}/kandan/hubot-key`
   HUBOT_KANDAN_HOST=localhost
@@ -170,7 +169,7 @@ bootApp () {
 
 appStart () {
   # update adapter
-  sed -ri "s|/bin/hubot -a .*$|/bin/hubot -a ${ADAPTER}/g" /etc/supervisor/hubot.conf
+  sed -ri "s|/bin/hubot -a .*$|/bin/hubot -a ${ADAPTER}|g" ${HUBOT_CONF}
   # start supervisord
   exec /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
 }

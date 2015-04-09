@@ -30,7 +30,7 @@ apt-get -y install \
 # install dependency
 curl -sL https://deb.nodesource.com/setup | bash -
 apt-get -y install nodejs \
-  libpq5 sqlite3 libmysqlclient18 \
+  libpq5 sqlite3 libmysqlclient18 postgresql-client-common postgresql-client-9.3\
   libcurl3 libcurl3-nss libpcre3 libxml2 libxslt1.1 \
   libreadline5 libyaml-0-2\
   libmysqlclient-dev libsqlite3-dev libpq-dev \
