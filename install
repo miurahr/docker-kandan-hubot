@@ -91,8 +91,14 @@ chown -R ${RUN_USER}:${RUN_USER} ${INSTALL_DIR}
 
 # install hubot
 install -d -m 755 -o ${RUN_USER} -g ${RUN_USER} ${INSTALL_DIR}/hubot
+cd ${INSTALL_DIR}
+curl https://github.com/github/hubot/archive/v2.6.0.tar.gz | sudo -u ${RUN_USER} tar xf -
+cd ${INSTALL_DIR}/hubot-2.6.0
+npm install -g mime@1.2.4 qs@0.4.2
+
+sudo -u ${RUN_USER} _E -H bin/hubot -c ../hubot
 cd ${INSTALL_DIR}/hubot
-sudo -u ${RUN_USER} -E -H yo hubot --defaults
+#sudo -u ${RUN_USER} -E -H yo hubot --defaults
 
 # install kandan adapter and some
 sudo -u ${RUN_USER} -E -H git clone https://github.com/miurahr/hubot-kandan.git       node_modules/hubot-kandan
