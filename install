@@ -27,7 +27,7 @@ apt-get -y install \
   g++ \
   make
 
-# install dependency
+# node and dependencies
 curl -sL https://deb.nodesource.com/setup | bash -
 apt-get -y install nodejs \
   libpq5 sqlite3 libmysqlclient18 postgresql-client-common postgresql-client-9.3\
@@ -36,7 +36,12 @@ apt-get -y install nodejs \
   libmysqlclient-dev libsqlite3-dev libpq-dev \
   libcurl4-openssl-dev libpcre3-dev libxml2-dev libxslt-dev \
   libreadline-gplv2-dev
+# update npm
 npm update -g npm
+
+###################################
+# supervisord config
+
 # move supervisord.log file to ${LOG_DIR}
 sed 's|^logfile=.*|logfile='"${LOG_DIR}"'/supervisord.log ;|' -i /etc/supervisor/supervisord.conf
 
@@ -70,9 +75,9 @@ stdout_logfile=${LOG_DIR}/%(program_name)s.log
 stderr_logfile=${LOG_DIR}/%(program_name)s.log
 __EOL__
 
-# install yeoman and hubot generator
-npm install -g yo generator-hubot
-
+############################################
+# Kandan
+#
 # install
 cd ${INSTALL_DIR}
 sudo -u ${RUN_USER} -E -H git clone https://github.com/miurahr/kandan.git
@@ -89,33 +94,41 @@ sed -ri 's/config.serve_static_assets = false/config.serve_static_assets = true/
 
 chown -R ${RUN_USER}:${RUN_USER} ${INSTALL_DIR}
 
-# install hubot
+#############################################
+# Hubot
+#
+# install
 install -d -m 755 -o ${RUN_USER} -g ${RUN_USER} ${INSTALL_DIR}/hubot
 cd ${INSTALL_DIR}
-curl https://github.com/github/hubot/archive/v2.6.0.tar.gz | sudo -u ${RUN_USER} tar xf -
-cd ${INSTALL_DIR}/hubot-2.6.0
-npm install -g mime@1.2.4 qs@0.4.2
-
-sudo -u ${RUN_USER} _E -H bin/hubot -c ../hubot
+# install from github release
+curl -sL https://github.com/github/hubot/releases/download/v2.6.0/hubot-2.6.0.tar.gz | zcat | sudo -u ${RUN_USER} tar xf -
 cd ${INSTALL_DIR}/hubot
-#sudo -u ${RUN_USER} -E -H yo hubot --defaults
+
+#XX# install by yeoman and hubot generator
+# npm install -g yo generator-hubot
+# sudo -u ${RUN_USER} -E -H yo hubot --defaults
 
 # install kandan adapter and some
 sudo -u ${RUN_USER} -E -H git clone https://github.com/miurahr/hubot-kandan.git       node_modules/hubot-kandan
 sudo -u ${RUN_USER} -E -H git clone https://github.com/robhurring/hubot-redmine.git   node_modules/hubot-redmine
 sudo -u ${RUN_USER} -E -H git clone https://github.com/hubot-scripts/hubot-trello.git node_modules/hubot-trello
-
 sed -ri 's/"hubot-redis-brain": "0.0.2",/"hubot-kandan": "*","hubot-redmine": "*","hubot-trello": "*",/g'  ${INSTALL_DIR}/hubot/package.json
 sed -ri 's/"hubot-redis-brain",//g' ${INSTALL_DIR}/hubot/external-scripts.json
+
+# install all dependencies
 sudo -u ${RUN_USER} -E -H npm install
 
+##############################################
+#
 # cleanup dev files
 apt-get -y remove \
   libmysqlclient-dev libsqlite3-dev libpq-dev \
   libcurl4-openssl-dev libpcre3-dev libxml2-dev libxslt-dev \
   libreadline-gplv2-dev
 
-# clean apt caches, build dependency
+# clean apt caches and more
 apt-get clean
 apt-get -y autoremove
 find /var/lib/apt/lists/ -type f -exec rm -f {} \;
+
+exit 0
