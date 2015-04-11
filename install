@@ -122,7 +122,7 @@ sudo -u ${RUN_USER} -E -H npm install
 #
 # cleanup dev files
 apt-get -y remove \
-  unzip gcc g++ make curl git-core build-essential \
+  unzip gcc g++ make build-essential \
   libmysqlclient-dev libsqlite3-dev libpq-dev \
   libcurl4-openssl-dev libpcre3-dev libxml2-dev libxslt-dev \
   libreadline-gplv2-dev
