@@ -35,9 +35,10 @@ apt-get -y install nodejs \
   libreadline5 libyaml-0-2\
   libmysqlclient-dev libsqlite3-dev libpq-dev \
   libcurl4-openssl-dev libpcre3-dev libxml2-dev libxslt-dev \
-  libreadline-gplv2-dev
+  libreadline-gplv2-dev libcxxtools-dev
 # update npm
 npm update -g npm
+npm install -g coffee-script
 
 ###################################
 # supervisord config
@@ -79,9 +80,10 @@ __EOL__
 # Kandan
 #
 # install
-#  checkout i18n branch only
-cd ${INSTALL_DIR}
-sudo -u ${RUN_USER} -E -H git clone --depth 1 -b i18n --single-branch https://github.com/miurahr/kandan.git
+#  checkout kandan-i18n branch only
+#sudo -u ${RUN_USER} -E -H git clone --depth 1 -b kandan-i18n --single-branch https://github.com/miurahr/kandan.git ${INSTALL_DIR}/kandan
+# checkout v1.2-i18n branch only
+sudo -u ${RUN_USER} -E -H git clone --depth 1 -b v1.2-i18n --single-branch https://github.com/miurahr/kandan.git ${INSTALL_DIR}/kandan
 
 ${GEM} install execjs --no-document
 ${GEM} install mysql2 --no-document
@@ -99,10 +101,20 @@ chown -R ${RUN_USER}:${RUN_USER} ${INSTALL_DIR}
 #
 # install
 install -d -m 755 -o ${RUN_USER} -g ${RUN_USER} ${INSTALL_DIR}/hubot
-cd ${INSTALL_DIR}
-# install from github release
-curl -sL https://github.com/github/hubot/releases/download/v2.6.0/hubot-2.6.0.tar.gz | zcat | sudo -u ${RUN_USER} tar xf -
+
+# install executables from github release
+#curl -sL https://github.com/github/hubot/releases/download/v2.6.0/hubot-2.6.0.tar.gz | zcat | (cd ${INSTALL_DIR};sudo -u ${RUN_USER} tar xf -)
+
+# install source from github release
+curl -sL -o /tmp/hubot.zip https://github.com/github/hubot/archive/v2.6.0.zip && sudo -u ${RUN_USER} -E -H unzip /tmp/hubot.zip -d ${INSTALL_DIR} && rm /tmp/hubot.zip
+cd ${INSTALL_DIR}/hubot-2.6.0
+sudo -u ${RUN_USER} -E -H npm install
+sudo -u ${RUN_USER} -E -H bin/hubot -c ../hubot
+#rm -rf ${INSTALL_DIR}/hubot-2.6.0
+
+# install dependencies
 cd ${INSTALL_DIR}/hubot
+sudo -u ${RUN_USER} -E -H npm install
 
 #XX# install by yeoman and hubot generator
 # npm install -g yo generator-hubot
@@ -110,9 +122,11 @@ cd ${INSTALL_DIR}/hubot
 
 # install kandan adapter and some
 sudo -u ${RUN_USER} -E -H git clone --depth 1 https://github.com/miurahr/hubot-kandan.git       node_modules/hubot-kandan
-sudo -u ${RUN_USER} -E -H git clone --depth 1 https://github.com/robhurring/hubot-redmine.git   node_modules/hubot-redmine
-sudo -u ${RUN_USER} -E -H git clone --depth 1 https://github.com/hubot-scripts/hubot-trello.git node_modules/hubot-trello
-sed -ri 's/"hubot-redis-brain": "0.0.2",/"hubot-kandan": "*","hubot-redmine": "*","hubot-trello": "*",/g'  ${INSTALL_DIR}/hubot/package.json
+sudo -u ${RUN_USER} -E -H npm install faye@0.8.9
+#sudo -u ${RUN_USER} -E -H git clone --depth 1 https://github.com/robhurring/hubot-redmine.git   node_modules/hubot-redmine
+#sudo -u ${RUN_USER} -E -H git clone --depth 1 https://github.com/hubot-scripts/hubot-trello.git node_modules/hubot-trello
+#sed -ri 's/"hubot-redis-brain": "0.0.2",/"hubot-kandan": "*","hubot-redmine": "*","hubot-trello": "*",/g'  ${INSTALL_DIR}/hubot/package.json
+sed -ri 's/"hubot-redis-brain": "0.0.2",/"hubot-kandan": "*",/g'  ${INSTALL_DIR}/hubot/package.json
 sed -ri 's/"hubot-redis-brain",//g' ${INSTALL_DIR}/hubot/external-scripts.json
 
 # install all dependencies
