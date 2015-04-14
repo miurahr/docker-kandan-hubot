@@ -114,7 +114,7 @@ sudo -u ${RUN_USER} -E -H make package
 cd ${INSTALL_DIR}/hubot-2.4.8/hubot
 # install kandan adapter and some
 sudo -u ${RUN_USER} -E -H git clone -b stable-1.0 --depth 1  https://github.com/miurahr/hubot-kandan.git node_modules/hubot-kandan
-sudo -u ${RUN_USER} -E -H npm install faye@0.8.2
+sudo -u ${RUN_USER} -E -H npm install faye@0.8.11
 #sudo -u ${RUN_USER} -E -H git clone --depth 1 https://github.com/robhurring/hubot-redmine.git   node_modules/hubot-redmine
 #sudo -u ${RUN_USER} -E -H git clone --depth 1 https://github.com/hubot-scripts/hubot-trello.git node_modules/hubot-trello
 #sed -ri 's/"hubot-redis-brain": "0.0.2",/"hubot-kandan": "*","hubot-redmine": "*","hubot-trello": "*",/g'  ${INSTALL_DIR}/hubot/package.json
