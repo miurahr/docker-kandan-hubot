@@ -68,11 +68,11 @@ __EOL__
 # populate ${HUBOT_CONF}
 cat > ${HUBOT_CONF} <<__EOL__
 [program:hubot]
-command=${INSTALL_DIR}/hubot-${HUBOT_VER}/hubot/bin/hubot -a kandan
+command=${INSTALL_DIR}/hubot/bin/hubot -a kandan
 autostart=true
 autorestart=false
 username=${RUN_USER}
-directory=${INSTALL_DIR}/hubot-${HUBOT_VER}/hubot
+directory=${INSTALL_DIR}/hubot
 stdout_logfile=${LOG_DIR}/%(program_name)s.log
 stderr_logfile=${LOG_DIR}/%(program_name)s.log
 __EOL__
@@ -101,24 +101,24 @@ chown -R ${RUN_USER}:${RUN_USER} ${INSTALL_DIR}
 install -d -m 755 -o ${RUN_USER} -g ${RUN_USER} ${INSTALL_DIR}/hubot
 
 # install source from github release
-curl -sL -o /tmp/hubot.zip https://github.com/github/hubot/archive/v${HUBOT_VER}.zip && sudo -u ${RUN_USER} -E -H unzip /tmp/hubot.zip -d ${INSTALL_DIR} && rm /tmp/hubot.zip
-cd ${INSTALL_DIR}/hubot-${HUBOT_VER}
-sudo -u ${RUN_USER} -E -H npm install
-sudo -u ${RUN_USER} -E -H mkdir -p hubot/bin
-sudo -u ${RUN_USER} -E -H make package
+#curl -sL -o /tmp/hubot.zip https://github.com/github/hubot/archive/v${HUBOT_VER}.zip && sudo -u ${RUN_USER} -E -H unzip /tmp/hubot.zip -d ${INSTALL_DIR} && rm /tmp/hubot.zip
+#cd ${INSTALL_DIR}/hubot-${HUBOT_VER}
+#sudo -u ${RUN_USER} -E -H npm install
+#sudo -u ${RUN_USER} -E -H mkdir -p hubot/bin
+#sudo -u ${RUN_USER} -E -H make package
 
-#XX# install by yeoman and hubot generator
-# npm install -g yo generator-hubot
-# sudo -u ${RUN_USER} -E -H yo hubot --defaults
+# install by yeoman and hubot generator
+cd ${INSTALL_DIR}/hubot
+npm install -g yo generator-hubot
+sudo -u ${RUN_USER} -E -H yo hubot --defaults
 
-cd ${INSTALL_DIR}/hubot-${HUBOT_VER}/hubot
 # install kandan adapter and some
 sudo -u ${RUN_USER} -E -H git clone https://github.com/miurahr/hubot-kandan.git node_modules/hubot-kandan
 sudo -u ${RUN_USER} -E -H npm install faye
 sudo -u ${RUN_USER} -E -H git clone --depth 1 https://github.com/robhurring/hubot-redmine.git   node_modules/hubot-redmine
 sudo -u ${RUN_USER} -E -H git clone --depth 1 https://github.com/hubot-scripts/hubot-trello.git node_modules/hubot-trello
-sed -ri 's/"hubot-redis-brain": "0.0.2",/"hubot-kandan": "*","hubot-redmine": "*","hubot-trello": "*",/g'  ${INSTALL_DIR}/hubot-${HUBOT_VER}hubot/package.json
-sed -ri 's/"hubot-redis-brain",//g' ${INSTALL_DIR}/hubot-${HUBOT_VER}/hubot/external-scripts.json
+sed -ri 's/"hubot-redis-brain": "0.0.2",/"hubot-kandan": "*","hubot-redmine": "*","hubot-trello": "*",/g'  ${INSTALL_DIR}/hubot/package.json
+sed -ri 's/"hubot-redis-brain",//g' ${INSTALL_DIR}/hubot/external-scripts.json
 
 # install all dependencies
 sudo -u ${RUN_USER} -E -H npm install
