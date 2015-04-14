@@ -102,13 +102,11 @@ chown -R ${RUN_USER}:${RUN_USER} ${INSTALL_DIR}
 # install
 install -d -m 755 -o ${RUN_USER} -g ${RUN_USER} ${INSTALL_DIR}/hubot
 
-# install executables from github release
-#curl -sL https://github.com/github/hubot/releases/download/v2.6.0/hubot-2.6.0.tar.gz | zcat | (cd ${INSTALL_DIR};sudo -u ${RUN_USER} tar xf -)
-
 # install source from github release
 curl -sL -o /tmp/hubot.zip https://github.com/github/hubot/archive/v2.4.8.zip && sudo -u ${RUN_USER} -E -H unzip /tmp/hubot.zip -d ${INSTALL_DIR} && rm /tmp/hubot.zip
 cd ${INSTALL_DIR}/hubot-2.4.8
 sudo -u ${RUN_USER} -E -H npm install
+sudo -u ${RUN_USER} -E -H mkdir -p hubot/bin
 sudo -u ${RUN_USER} -E -H make package
 
 #XX# install by yeoman and hubot generator
