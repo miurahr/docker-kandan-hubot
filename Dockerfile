@@ -5,6 +5,7 @@ MAINTAINER miurahr@linux.com
 ADD install /opt/
 RUN chmod 755 /opt/install
 ADD build-config /opt/
+ADD package.json /opt/
 RUN /opt/install
 
 ADD init /opt/
