@@ -11,6 +11,7 @@ RUN_USER=${RUN_USER:-app}
 LOG_DIR="/var/log/app"
 KANDAN_CONF=/etc/supervisor/conf.d/kandan.conf
 HUBOT_CONF=/etc/supervisor/conf.d/hubot.conf
+HUBOT_VER=2.4.7
 
 # add user
 useradd -d ${INSTALL_DIR} -m ${RUN_USER}
@@ -67,11 +68,11 @@ __EOL__
 # populate ${HUBOT_CONF}
 cat > ${HUBOT_CONF} <<__EOL__
 [program:hubot]
-command=${INSTALL_DIR}/hubot-2.4.7/hubot/bin/hubot -a kandan
+command=${INSTALL_DIR}/hubot-${HUBOT_VER}/hubot/bin/hubot -a kandan
 autostart=true
 autorestart=false
 username=${RUN_USER}
-directory=${INSTALL_DIR}/hubot-2.4.7/hubot
+directory=${INSTALL_DIR}/hubot-${HUBOT_VER}/hubot
 stdout_logfile=${LOG_DIR}/%(program_name)s.log
 stderr_logfile=${LOG_DIR}/%(program_name)s.log
 __EOL__
@@ -100,31 +101,26 @@ chown -R ${RUN_USER}:${RUN_USER} ${INSTALL_DIR}
 # Hubot
 #
 # install source from github release
-curl -sL -o /tmp/hubot.zip https://github.com/github/hubot/archive/v2.4.7.zip && sudo -u ${RUN_USER} -E -H unzip /tmp/hubot.zip -d ${INSTALL_DIR} && rm /tmp/hubot.zip
-cd ${INSTALL_DIR}/hubot-2.4.7
-install -d -m 755 -o ${RUN_USER} -g ${RUN_USER} ${INSTALL_DIR}/hubot-2.4.7/hubot
+curl -sL -o /tmp/hubot.zip https://github.com/github/hubot/archive/v${HUBOT_VER} && sudo -u ${RUN_USER} -E -H unzip /tmp/hubot.zip -d ${INSTALL_DIR} && rm /tmp/hubot.zip
+cd ${INSTALL_DIR}/hubot-${HUBOT_VER}
+install -d -m 755 -o ${RUN_USER} -g ${RUN_USER} ${INSTALL_DIR}/hubot-${HUBOT_VER}/hubot
 
 sudo -u ${RUN_USER} -E -H npm install
 sudo -u ${RUN_USER} -E -H make package
 
-#XX# install by yeoman and hubot generator
-# npm install -g yo generator-hubot
-# sudo -u ${RUN_USER} -E -H yo hubot --defaults
-
-cd ${INSTALL_DIR}/hubot-2.4.7/hubot
+cd ${INSTALL_DIR}/hubot-${HUBOT_VER}/hubot
 sudo -u ${RUN_USER} cp /opt/package.json ./package.json
 # install kandan adapter and some
 sudo -u ${RUN_USER} -E -H git clone -b stable-1.0 --depth 1  https://github.com/miurahr/hubot-kandan.git node_modules/hubot-kandan
 sudo -u ${RUN_USER} -E -H npm install faye@0.8.11
 sudo -u ${RUN_USER} -E -H npm install ntwitter
-#sudo -u ${RUN_USER} -E -H git clone --depth 1 https://github.com/robhurring/hubot-redmine.git   node_modules/hubot-redmine
-#sudo -u ${RUN_USER} -E -H git clone --depth 1 https://github.com/hubot-scripts/hubot-trello.git node_modules/hubot-trello
-#sed -ri 's/"hubot-redis-brain": "0.0.2",/"hubot-kandan": "*","hubot-redmine": "*","hubot-trello": "*",/g'  ${INSTALL_DIR}/hubot/package.json
-sed -ri 's/"hubot-redis-brain": "0.0.2",/"hubot-kandan": "*","ntwitter": "*",/g'  ${INSTALL_DIR}/hubot-2.4.7/hubot/package.json
-sed -ri 's/"redis-brain.coffee",//g' ${INSTALL_DIR}/hubot-2.4.7/hubot/hubot-scripts.json
+sudo -u ${RUN_USER} -E -H git clone --depth 1 https://github.com/robhurring/hubot-redmine.git   node_modules/hubot-redmine
+sed -ri 's/"hubot-redis-brain": "0.0.2",/"hubot-kandan": "*","ntwitter": "*","hubot-redmine": "*",/g'  ${INSTALL_DIR}/hubot-${HUBOT_VER}/hubot/package.json
+sed -ri 's/"redis-brain.coffee",//g' ${INSTALL_DIR}/hubot-${HUBOT_VER}/hubot/hubot-scripts.json
+echo '["hubot-redmine"]' > ${INSTALL_DIR}/hubot-${HUBOT_VER}/hubot/external-scripts.json
 
 # supervisor cannot control status dependency. we insert sleep for waiting kandan become up
-sed -ri 's/npm install/sleep 10 && npm install/g' ${INSTALL_DIR}/hubot-2.4.7/hubot/bin/hubot
+sed -ri 's/npm install/sleep 10 && npm install/g' ${INSTALL_DIR}/hubot-${HUBOT_VER}/hubot/bin/hubot
 
 # install all dependencies
 sudo -u ${RUN_USER} -E -H npm install
