@@ -1,4 +1,4 @@
-FROM miurahr/rbenv:1.9.3-p484
+FROM miurahr/rbenv:2.2.1
 
 MAINTAINER miurahr@linux.com
 
