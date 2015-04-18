@@ -3,6 +3,8 @@ postgresql:
   environment:
     - DB_PASS=hogefuga
     - DB_USER=kandan
+redis:
+  image: redis
 kandan:
   image: miurahr/kandan
   environment:
@@ -11,6 +13,7 @@ kandan:
     - DB_NAME=kandan_production
   links:
     - postgresql:postgresql
+    - redis:redis
   volumes:
     - /var/log/kandan-hubot:/var/log/app
   ports:

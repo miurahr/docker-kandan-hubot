@@ -1,9 +1,13 @@
+redis:
+  image: redis
 kandan-hubot:
   image: miurahr/kandan-hubot
   environment:
     - DB_USER=kandan
     - DB_PASS=hogefuga
     - DB_NAME=kandan_production
+  links:
+    - redis:redis
   volumes:
     - /var/log/kanda-hubot:/var/log/app
   ports:

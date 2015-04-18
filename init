@@ -9,6 +9,10 @@ INSTALL_DIR=${INSTALL_DIR:-"/home/app"}
 ADAPTER=kandan
 HUBOT_CONF=/etc/supervisor/conf.d/hubot.conf
 
+setupRedis () {
+  # docker offical redis links with REDIS_PORT_6379_TCP_ADDR / _PORT
+  REDIS_URL=redis://${REDIS_PORT_6379_TCP_ADDR}:${REDIS_PORT_6379_TCP_PORT}
+}
 
 setupDB () {
 
@@ -164,6 +168,7 @@ bootApp () {
   echo "  HUBOT_KANDAN_TOKEN=\"${HUBOT_KANDAN_TOKEN}\"," >> ${HUBOT_CONF}
   echo "  HUBOT_KANDAN_PORT=${HUBOT_KANDAN_PORT}," >> ${HUBOT_CONF}
   echo "  HUBOT_KANDAN_HOST=${HUBOT_KANDAN_HOST}," >> ${HUBOT_CONF}
+  echo "  REDIS_URL=${REDIS_URL}," >> ${HUBOT_CONF}
   echo "  HUBOT_LOG_LEVEL=debug" >> ${HUBOT_CONF}
 }
 
@@ -184,6 +189,7 @@ appHelp () {
 case "$1" in
   app:start)
     setupDB
+    setupRedis
     bootApp
     appStart
     ;;

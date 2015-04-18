@@ -117,8 +117,8 @@ sudo -u ${RUN_USER} -E -H git clone https://github.com/miurahr/hubot-kandan.git 
 sudo -u ${RUN_USER} -E -H npm install faye
 sudo -u ${RUN_USER} -E -H git clone --depth 1 https://github.com/robhurring/hubot-redmine.git   node_modules/hubot-redmine
 sudo -u ${RUN_USER} -E -H git clone --depth 1 https://github.com/hubot-scripts/hubot-trello.git node_modules/hubot-trello
-sed -ri 's/"hubot-redis-brain": "0.0.2",/"hubot-kandan": "*","hubot-redmine": "*","hubot-trello": "*",/g'  ${INSTALL_DIR}/hubot/package.json
-sed -ri 's/"hubot-redis-brain",//g' ${INSTALL_DIR}/hubot/external-scripts.json
+sed -ri 's/"hubot-redis-brain": "0.0.2",/"hubot-redis-brain": "0.0.2","ntwitter": "*","hubot-kandan": "*","hubot-redmine": "*","hubot-trello": "*",/g'  ${INSTALL_DIR}/hubot/package.json
+sed -ri 's/"hubot-redis-brain",/"hubot-redis-brain","hubot-redmine","hubot-trello"/g' ${INSTALL_DIR}/hubot/external-scripts.json
 
 # install all dependencies
 sudo -u ${RUN_USER} -E -H npm install
