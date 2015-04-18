@@ -109,7 +109,6 @@ sudo -u ${RUN_USER} -E -H npm install
 sudo -u ${RUN_USER} -E -H make package
 
 cd ${INSTALL_DIR}/hubot-${HUBOT_VER}/hubot
-sudo -u ${RUN_USER} cp /opt/package.json ./package.json
 # install kandan adapter and some
 sudo -u ${RUN_USER} -E -H git clone -b stable-1.0 --depth 1  https://github.com/miurahr/hubot-kandan.git node_modules/hubot-kandan
 sudo -u ${RUN_USER} -E -H npm install faye@0.8.11
