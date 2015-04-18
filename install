@@ -101,7 +101,7 @@ chown -R ${RUN_USER}:${RUN_USER} ${INSTALL_DIR}
 # Hubot
 #
 # install source from github release
-curl -sL -o /tmp/hubot.zip https://github.com/github/hubot/archive/v${HUBOT_VER} && sudo -u ${RUN_USER} -E -H unzip /tmp/hubot.zip -d ${INSTALL_DIR} && rm /tmp/hubot.zip
+curl -sL -o /tmp/hubot.zip https://github.com/github/hubot/archive/v${HUBOT_VER}.zip && sudo -u ${RUN_USER} -E -H unzip /tmp/hubot.zip -d ${INSTALL_DIR} && rm /tmp/hubot.zip
 cd ${INSTALL_DIR}/hubot-${HUBOT_VER}
 install -d -m 755 -o ${RUN_USER} -g ${RUN_USER} ${INSTALL_DIR}/hubot-${HUBOT_VER}/hubot
 
