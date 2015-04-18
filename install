@@ -115,10 +115,14 @@ sudo -u ${RUN_USER} -E -H yo hubot --defaults
 # install kandan adapter and some
 sudo -u ${RUN_USER} -E -H git clone https://github.com/miurahr/hubot-kandan.git node_modules/hubot-kandan
 sudo -u ${RUN_USER} -E -H npm install faye
+sudo -u ${RUN_USER} -E -H npm install ntwitter
 sudo -u ${RUN_USER} -E -H git clone --depth 1 https://github.com/robhurring/hubot-redmine.git   node_modules/hubot-redmine
 sudo -u ${RUN_USER} -E -H git clone --depth 1 https://github.com/hubot-scripts/hubot-trello.git node_modules/hubot-trello
 sed -ri 's/"hubot-redis-brain": "0.0.2",/"hubot-redis-brain": "0.0.2","ntwitter": "*","hubot-kandan": "*","hubot-redmine": "*","hubot-trello": "*",/g'  ${INSTALL_DIR}/hubot/package.json
 sed -ri 's/"hubot-redis-brain",/"hubot-redis-brain","hubot-redmine","hubot-trello"/g' ${INSTALL_DIR}/hubot/external-scripts.json
+
+# supervisor cannot control status dependency. we insert sleep for waiting kandan become up
+sed -ri 's/npm install/sleep 10 && npm install/g' ${INSTALL_DIR}/hubot-2.4.7/hubot/bin/hubot
 
 # install all dependencies
 sudo -u ${RUN_USER} -E -H npm install
