@@ -3,6 +3,18 @@ docker-kandan-hubot
 
 Run kandan and hubot on Docker.
 
+## Images
+
+* miurahr/kandan-hubot:stable  
+
+  based on kandan v1.2 and hubot 2.4.7, stable build
+  status: work fine
+
+* miurahr/kandan-hubot:latest
+
+  based on kandan and hubot master branch
+  status: under development
+
 ## Build docker image
 
 ```
