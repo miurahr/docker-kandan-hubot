@@ -122,7 +122,7 @@ sed -ri 's/"hubot-redis-brain": "0.0.2",/"hubot-redis-brain": "0.0.2","ntwitter"
 sed -ri 's/"hubot-redis-brain",/"hubot-redis-brain","hubot-redmine","hubot-trello"/g' ${INSTALL_DIR}/hubot/external-scripts.json
 
 # supervisor cannot control status dependency. we insert sleep for waiting kandan become up
-sed -ri 's/^set -e/set -e\nsleep 10/g' ${INSTALL_DIR}/hubot/bin/hubot
+sed -ri 's/^set -e/set -e\nsleep 10/' ${INSTALL_DIR}/hubot/bin/hubot
 
 # install all dependencies
 sudo -u ${RUN_USER} -E -H npm install
