@@ -81,7 +81,7 @@ __EOL__
 # Kandan
 #
 #  checkout kandan-i18n branch
-sudo -u ${RUN_USER} -E -H git clone -b kandan-i18n --single-branch https://github.com/miurahr/kandan.git ${INSTALL_DIR}/kandan
+sudo -u ${RUN_USER} -E -H git clone -b hubot_integration https://github.com/miurahr/kandan.git ${INSTALL_DIR}/kandan
 
 ${GEM} install execjs --no-document
 ${GEM} install mysql2 --no-document
