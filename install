@@ -119,7 +119,7 @@ sed -ri 's/"redis-brain.coffee",//g' ${INSTALL_DIR}/hubot-${HUBOT_VER}/hubot/hub
 echo '["hubot-redmine"]' > ${INSTALL_DIR}/hubot-${HUBOT_VER}/hubot/external-scripts.json
 
 # supervisor cannot control status dependency. we insert sleep for waiting kandan become up
-sed -ri 's/npm install/sleep 10 && npm install/g' ${INSTALL_DIR}/hubot-${HUBOT_VER}/hubot/bin/hubot
+sed -ri 's/^npm install/npm install\nsleep 10/' ${INSTALL_DIR}/hubot-${HUBOT_VER}/hubot/bin/hubot
 
 # install all dependencies
 sudo -u ${RUN_USER} -E -H npm install
