@@ -116,6 +116,7 @@ sudo -u ${RUN_USER} -E -H yo hubot --defaults
 sudo -u ${RUN_USER} -E -H git clone https://github.com/miurahr/hubot-kandan.git node_modules/hubot-kandan
 sudo -u ${RUN_USER} -E -H npm install faye@1.0.1
 sudo -u ${RUN_USER} -E -H npm install ntwitter
+sudo -u ${RUN_USER} -E -H npm install trello
 sudo -u ${RUN_USER} -E -H git clone --depth 1 https://github.com/robhurring/hubot-redmine.git   node_modules/hubot-redmine
 sudo -u ${RUN_USER} -E -H git clone --depth 1 https://github.com/hubot-scripts/hubot-trello.git node_modules/hubot-trello
 sed -ri 's/"hubot-redis-brain": "0.0.2",/"hubot-redis-brain": "0.0.2","ntwitter": "*","hubot-kandan": "*","hubot-redmine": "*","hubot-trello": "*",/g'  ${INSTALL_DIR}/hubot/package.json
