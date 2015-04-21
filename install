@@ -119,7 +119,7 @@ sudo -u ${RUN_USER} -E -H npm install ntwitter
 sudo -u ${RUN_USER} -E -H git clone --depth 1 https://github.com/robhurring/hubot-redmine.git   node_modules/hubot-redmine
 sudo -u ${RUN_USER} -E -H git clone --depth 1 https://github.com/hubot-scripts/hubot-trello.git node_modules/hubot-trello
 sed -ri 's/"hubot-redis-brain": "0.0.2",/"hubot-redis-brain": "0.0.2","ntwitter": "*","hubot-kandan": "*","hubot-redmine": "*","hubot-trello": "*",/g'  ${INSTALL_DIR}/hubot/package.json
-sed -ri 's/"hubot-redis-brain",/"hubot-redis-brain","hubot-redmine","hubot-trello"/g' ${INSTALL_DIR}/hubot/external-scripts.json
+sed -ri 's/"hubot-redis-brain",/"hubot-redis-brain","hubot-redmine","hubot-trello",/g' ${INSTALL_DIR}/hubot/external-scripts.json
 
 # supervisor cannot control status dependency. we insert sleep for waiting kandan become up
 sed -ri 's/^set -e/set -e\nsleep 10/' ${INSTALL_DIR}/hubot/bin/hubot
