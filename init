@@ -2,7 +2,7 @@
 
 . /etc/profile.d/rbenv.sh
 BUNDLE=`which bundle`
-. /opt/build-config
+. /opt/kandan-hubot/build-config
 
 LOG_DIR=${LOG_DIR:-"/var/log/app"}
 INSTALL_DIR=${INSTALL_DIR:-"/home/app"}
@@ -191,6 +191,9 @@ configHubot () {
     echo "  HUBOT_REDMINE_TOKEN=${HUBOT_REDMINE_TOKEN}," >> ${HUBOT_CONF}
     if [ "${HUBOT_REDMINE_SSL}" == "1" ] ; then
       echo "  HUBOT_REDMINE_SSL=1," >> ${HUBOT_CONF}
+    fi
+    if [ "${HUBOT_REDMINE_SSL_CA}" != "" ] ; then
+      echo "  HUBOT_REDMINE_SSL_CA=${HUBOT_REDMINE_SSL_CA}," >> ${HUBOT_CONF}
     fi
   fi
 

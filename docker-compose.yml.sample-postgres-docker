@@ -16,10 +16,13 @@ kandan:
     - HUBOT_TRELLO_BOARD=todo
     - HUBOT_REDMINE_URL=http://redmine.example.com/
     - HUBOT_REDMINE_TOKEN=aaaaaaaaaaa
+    - HUBOT_REDMINE_SSL=1
+    - HUBOT_REDMINE_SSL_CA=/opt/kandan-hubot/cert/cacert.org.pem
   links:
     - postgresql:postgresql
     - redis:redis
   volumes:
-    - /var/log/kandan-hubot:/var/log/app
+    - /opt/kandan-hubot/log:/var/log/app
+    - /opt/kandan-hubot/cert:/opt/kandan-hubot/cert
   ports:
     - 3000:3000
