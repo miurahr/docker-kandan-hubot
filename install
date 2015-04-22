@@ -33,13 +33,22 @@ curl -sL https://deb.nodesource.com/setup | bash -
 apt-get -y install nodejs \
   libpq5 sqlite3 libmysqlclient18 postgresql-client-common postgresql-client-9.3\
   libcurl3 libcurl3-nss libpcre3 libxml2 libxslt1.1 \
-  libreadline5 libyaml-0-2\
+  libreadline5 libyaml-0-2 ca-certificates \
   libmysqlclient-dev libsqlite3-dev libpq-dev \
   libcurl4-openssl-dev libpcre3-dev libxml2-dev libxslt-dev \
   libreadline-gplv2-dev libcxxtools-dev
 # update npm
 npm update -g npm
 npm install -g coffee-script
+
+##################################
+#
+# CACert.org cert
+CACERT_DIR=/usr/local/share/ca-certificates/cacert.org
+mkdir -p ${CACERT_DIR}
+curl -s http://www.cacert.org/certs/root.crt > ${CACERT_DIR}/root.crt
+curl -s http://www.cacert.org/certs/class3.crt > ${CACERT_DIR}/class3.crt
+update-ca-certificates
 
 ###################################
 # supervisord config

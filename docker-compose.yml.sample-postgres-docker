@@ -17,7 +17,9 @@ kandan:
     - HUBOT_REDMINE_URL=http://redmine.example.com/
     - HUBOT_REDMINE_TOKEN=aaaaaaaaaaa
     - HUBOT_REDMINE_SSL=1
-    - HUBOT_REDMINE_SSL_CA=/opt/kandan-hubot/cert/cacert.org.pem
+    - HUBOT_REDMINE_SSL_CA=/usr/local/share/ca-certificates/cacert.org/class3.crt
+    # if you want to use self-singed one, use such as /opt/kandan-hubot/cert/self_auhotirty.pem
+    # cacert.org certificates are included as local certificates
   links:
     - postgresql:postgresql
     - redis:redis
