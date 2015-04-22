@@ -8,6 +8,7 @@ LOG_DIR=${LOG_DIR:-"/var/log/app"}
 INSTALL_DIR=${INSTALL_DIR:-"/home/app"}
 ADAPTER=kandan
 HUBOT_CONF=/etc/supervisor/conf.d/hubot.conf
+HUBOT_KEY=${LOG_DIR}/hubot-key
 
 setupRedis () {
   # docker offical redis links with REDIS_PORT_6379_TCP_ADDR / _PORT
@@ -153,23 +154,71 @@ __EOL1__
 
 }
 
-bootApp () {
+bootKandan () {
+  # boot kandan
   cd ${INSTALL_DIR}/kandan
   sudo -u ${RUN_USER} -E -H ${BUNDLE} exec rake db:create db:migrate kandan:bootstrap RAILS_ENV=production
   sudo -u ${RUN_USER} -E -H ${BUNDLE} exec rake assets:precompile RAILS_ENV=production
   sudo -u ${RUN_USER} -E -H ${BUNDLE} exec rake kandan:boot_hubot RAILS_ENV=production
-  sudo -u ${RUN_USER} -E -H ${BUNDLE} exec rake kandan:hubot_access_key RAILS_ENV=production | grep -oP "(?<=Your hubot access key is )[^ ]*" > hubot-key
+  sudo -u ${RUN_USER} -E -H ${BUNDLE} exec rake kandan:hubot_access_key RAILS_ENV=production | grep -oP "(?<=Your hubot access key is )[^ ]*" > $HUBOT_KEY
+}
 
-  HUBOT_KANDAN_TOKEN=`cat ${INSTALL_DIR}/kandan/hubot-key`
+configHubot () {
+
+  # redis detection and configuration
+  if [ "${REDIS_URL}" == "" ] ; then
+    # drop redis-brain
+    echo "Cannot detect REDIS_URL. drop support for hubot-redis-brain plugin"
+    sed -ri 's/"hubot-redis-brain",//g' ${INSTALL_DIR}/hubot/external-scripts.json
+  else
+    echo "  REDIS_URL=${REDIS_URL}," >> ${HUBOT_CONF}
+  fi
+
+  # detect TRELLO configuration
+  if [ "${HUBOT_TRELLO_KEY}" == "" ] ; then
+    sed -ri 's/"hubot-trello",//g' ${INSTALL_DIR}/hubot/external-scripts.json
+  else
+    echo "  HUBOT_TRELLO_KEY=${HUBOT_TRELLO_KEY}," >> ${HUBOT_CONF}
+    echo "  HUBOT_TRELLO_TOKEN=${HUBOT_TRELLO_TOKEN}," >> ${HUBOT_CONF}
+    echo "  HUBOT_TRELLO_BOARD=${HUBOT_TRELLO_BOARD}," >> ${HUBOT_CONF}
+  fi
+
+  # detect Redmine configuraiton
+  if [ "${HUBOT_REDMINE_URL}" == "" ] ; then
+    sed -ri 's/"hubot-redmine",//g' ${INSTALL_DIR}/hubot/external-scripts.json
+  else
+    echo "  HUBOT_REDMINE_URL=${HUBOT_REDMINE_URL}," >> ${HUBOT_CONF}
+    echo "  HUBOT_REDMINE_TOKEN=${HUBOT_REDMINE_TOKEN}," >> ${HUBOT_CONF}
+    if [ "${HUBOT_REDMINE_SSL}" == "1" ] ; then
+      echo "  HUBOT_REDMINE_SSL=1," >> ${HUBOT_CONF}
+    fi
+  fi
+
+  # last line of hubot conf
+  echo "  HUBOT_LOG_LEVEL=debug" >> ${HUBOT_CONF}
+}
+
+bootApp () {
+  # initilize Kandan database and more
+  bootKandan
+
+  # hubot-kandan connetion
+  HUBOT_KANDAN_TOKEN=`cat ${HUBOT_KEY}`
   HUBOT_KANDAN_HOST=localhost
   HUBOT_KANDAN_PORT=3000
+
+  if [ "${HUBOT_KANDAN_TOKEN}" == "" ]; then
+    echo "Mandatory information HUBOT_KANDAN_TOKEN can not be detected...aborting..."
+    exit 1
+  fi
 
   echo "environment=" >> ${HUBOT_CONF}
   echo "  HUBOT_KANDAN_TOKEN=\"${HUBOT_KANDAN_TOKEN}\"," >> ${HUBOT_CONF}
   echo "  HUBOT_KANDAN_PORT=${HUBOT_KANDAN_PORT}," >> ${HUBOT_CONF}
   echo "  HUBOT_KANDAN_HOST=${HUBOT_KANDAN_HOST}," >> ${HUBOT_CONF}
-  echo "  REDIS_URL=${REDIS_URL}," >> ${HUBOT_CONF}
-  echo "  HUBOT_LOG_LEVEL=debug" >> ${HUBOT_CONF}
+
+  # configuration of hubot external scripts
+  configHubot
 }
 
 appStart () {
@@ -184,6 +233,28 @@ appHelp () {
   echo " app:start          - Starts the server (default)"
   echo " app:help           - Displays the help"
   echo " [command]          - Execute the specified linux command eg. bash."
+  echo
+  echo "Avalialble configurations through environment -e options"
+  echo "database configurations"
+  echo "-----------------------"
+  echo "DB_TYPE, DB_HOST, DB_USER, DB_PASS, DB_NAME"
+  echo "  It can ommit when using docker --link configuration"
+  echo
+  echo "DB_TYPE             - mysql or postgresql"
+  echo "DB_HOST             - dbms host name"
+  echo "DB_USER             - db user for app"
+  echo "DB_PASS             - db password for DB_USER"
+  echo "DB_NAME             - db name"
+  echo
+  echo "Optional configurations"
+  echo "------------------------"
+  echo "REDIS_URL           - Redis-brain support: redis://host:port"
+  echo "HUBOT_TRELLO_KEY    - Trello application key"
+  echo "HUBOT_TRELLO_TOKEN  - Trello API token"
+  echo "HUBOT_TRELLO_BOARD  - The ID of the Trello board you will be working with"
+  echo "HUBOT_REDMINE_BASE_URL - Redmine server URL"
+  echo "HUBOT_REDMINE_TOKEN - Redmine API token"
+  echo "HUBOT_REDMINE_SSL   - If REDMINE URL is https, please specify as 1"
 }
 
 case "$1" in
