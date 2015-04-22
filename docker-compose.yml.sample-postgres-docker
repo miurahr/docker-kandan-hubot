@@ -6,11 +6,16 @@ postgresql:
 redis:
   image: redis
 kandan:
-  image: miurahr/kandan
+  image: miurahr/kandan-hubot
   environment:
     - DB_USER=kandan
     - DB_PASS=hogefuga
     - DB_NAME=kandan_production
+    - HUBOT_TRELLO_KEY=xxxxxxxxx
+    - HUBOT_TRELLO_TOKEN=aaaaaaaa
+    - HUBOT_TRELLO_BOARD=todo
+    - HUBOT_REDMINE_URL=http://redmine.example.com/
+    - HUBOT_REDMINE_TOKEN=aaaaaaaaaaa
   links:
     - postgresql:postgresql
     - redis:redis
