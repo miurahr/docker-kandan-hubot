@@ -8,7 +8,7 @@ RUN chmod 755 /opt/kandan-hubot/install
 ADD build-config /opt/kandan-hubot/
 RUN /opt/kandan-hubot/install
 
-ADD init /opt/kandan-hubot
+ADD init /opt/kandan-hubot/
 RUN chmod 755 /opt/kandan-hubot/init
 
 EXPOSE 3000
