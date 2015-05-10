@@ -1,6 +1,8 @@
 docker-kandan-hubot
 =====================
 
+[![Join the chat at https://gitter.im/miurahr/docker-kandan-hubot](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/miurahr/docker-kandan-hubot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Run kandan and hubot on Docker.
 
 ## Images
