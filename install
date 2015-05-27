@@ -133,27 +133,10 @@ sed -ri 's/"hubot-redis-brain": "0.0.2",/"hubot-redis-brain": "0.0.2","ntwitter"
 sed -ri 's/"hubot-redis-brain",/"hubot-redis-brain",\n    "hubot-redmine",\n    "hubot-trello",\n    /g' ${INSTALL_DIR}/hubot/external-scripts.json
 sed -ri 's/"hubot-heroku-keepalive",//' ${INSTALL_DIR}/hubot/external-scripts.json
 
+# replace hubot launch script.
 # supervisor cannot control status dependency. Hubot will wait kandan up
-cat > /tmp/hubot <<_EOF_
-#!/bin/bash
-set -e
-timeout=60
-echo -n "Waiting for kandan server to accept connections"
-while ! curl -s http://localhost:3000/ >/dev/null 2>&1
-do
-  timeout=$(expr $timeout - 1)
-  if [ $timeout -eq 0 ]; then
-    echo -e "\nCould not connect to kandan server. Aborting..."
-    exit 1
-  fi
-  echo -n "."
-  sleep 1
-done
-echo
-_EOF_
-tail -n +4  ${INSTALL_DIR}/hubot/bin/hubot >> /tmp/hubot
 mv ${INSTALL_DIR}/hubot/bin/hubot ${INSTALL_DIR}/hubot/bin/hubot.org
-install -o ${RUN_USER} -g ${RUN_USER} -m 755 /tmp/hubot ${INSTALL_DIR}/hubot/bin/hubot
+install -o ${RUN_USER} -g ${RUN_USER} -m 755 /opt/kandan-hubot/hubot-bin ${INSTALL_DIR}/hubot/bin/hubot
 
 # install all dependencies
 sudo -u ${RUN_USER} -E -H npm install

@@ -1,0 +1,21 @@
+#!/bin/bash
+set -e
+
+timeout=60
+echo -n "Waiting for kandan server to accept connections"
+while ! curl -s http://localhost:3000/ >/dev/null 2>&1
+do
+  timeout=$(expr $timeout - 1)
+  if [ $timeout -eq 0 ]; then
+    echo -e "\nCould not connect to kandan server. Aborting..."
+    exit 1
+  fi
+  echo -n "."
+  sleep 1
+done
+echo
+
+npm install
+export PATH="node_modules/.bin:node_modules/hubot/node_modules/.bin:$PATH"
+
+exec node_modules/.bin/hubot --name "hubot" "$@"

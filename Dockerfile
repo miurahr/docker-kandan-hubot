@@ -5,6 +5,7 @@ MAINTAINER miurahr@linux.com
 RUN mkdir -p /opt/kandan-hubot/cert
 ADD install /opt/kandan-hubot/
 RUN chmod 755 /opt/kandan-hubot/install
+ADD hubot-bin /opt/kandan-hubot/
 ADD build-config /opt/kandan-hubot/
 RUN /opt/kandan-hubot/install
 
