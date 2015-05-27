@@ -135,7 +135,7 @@ sed -ri 's/"hubot-heroku-keepalive",//' ${INSTALL_DIR}/hubot/external-scripts.js
 
 # supervisor cannot control status dependency. Hubot will wait kandan up
 cat > /tmp/hubot <<_EOF_
-#!/bin/sh
+#!/bin/bash
 set -e
 timeout=60
 echo -n "Waiting for kandan server to accept connections"
